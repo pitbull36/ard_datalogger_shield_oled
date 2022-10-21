@@ -82,6 +82,8 @@ void setup() {
 
   rtc.begin();
 
+//  rtc.adjust(DateTime(__DATE__, __TIME__));
+
   /* IMPORTANT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   Flash the first time with only the rtc.adjust(...) line to set the current time.
   Soon after, flash the code as it appears now with the "if", otherwise each time
@@ -94,12 +96,12 @@ void setup() {
     rtc.adjust(DateTime(__DATE__, __TIME__));
   }
 
-  //    // check if rtc is being recognised
-  //    if (! rtc.begin()) {
-  //      Serial.println(F("Couldn't find RTC"));
-  //      Serial.flush();
-  //      abort();
-  //    }
+//      // check if rtc is being recognised
+//      if (! rtc.begin()) {
+//        Serial.println(F("Couldn't find RTC"));
+//        Serial.flush();
+//        abort();
+//      }
 
   // let's start fetching the date_time to create the unique filename
   DateTime now = rtc.now(); // take the current time
