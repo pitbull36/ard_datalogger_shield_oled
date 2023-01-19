@@ -1,11 +1,15 @@
-// Before flashing this script, you must set the time (if you didn't do it already).
-// Hence, flash the example from the RTCLib library (ds1307 or softrtc).
-// After that, the time is set, and if you have a battery it is kept into your Arduino.
+// With this code, we will take the temperature and humidity from the DHT sensor,
+// we will display them together with the date and time onto a LED display, and
+// we will turn on a yellow LED if the temperature is between 19 and 20 degrees C,
+// and we will turn on a green LED if the temperature is above 20 degrees C.
 
-// ## IMPORT LIBRARIES and instantiate objects
+// Before flashing this script, you must set the time (if you didn't do it already).
+// Follow the instructions below (when there is "IMPORTANT" notice).
+// After that, the time is set, and if you have a battery in your shield it is kept into your Arduino.
+
+// ## IMPORT LIBRARIES and instantiate objects ##
 
 // for oled - library that uses reduced memory
-//#include <Arduino.h>
 #include <U8x8lib.h>
 
 U8X8_SSD1306_128X64_NONAME_HW_I2C u8x8( /* reset=*/ U8X8_PIN_NONE);
@@ -17,12 +21,10 @@ RTC_DS1307 rtc;
 
 // for temp sensor
 #include <DHT.h>
-
 #include <Adafruit_Sensor.h>
 
 // for SD reader
 #include <SPI.h>
-
 #include <SD.h>
 
 // DHT SENSOR: Initialize DHT sensor for normal 16 mHz Arduino:
@@ -33,12 +35,11 @@ DHT dht = DHT(DHTPIN, DHTTYPE);
 // SD MODULE: change this to match the CS pin of the SD module
 const int chipSelect = 10;
 
-// choose the LEDs pins (we use some free one)
-//#define led1 3
-//#define led2 4
-////digitalWrite(led1, HIGH);
+// Pins for the two LEDs
+#define greenLedPin 3
+#define yellowLedPin 4
 
-// ## SET USEFUL VARIABLES
+// ## SET USEFUL VARIABLES ##
 
 // cannot be more than 8 chars by FAT standard
 char filename[] = "hhmmss.txt"; // the filename array, I will change it with the date_time
@@ -54,7 +55,7 @@ int id = 1; // to later increase the ID on the log file
 
 int log_frequency = 1000; // log frequency in ms
 
-// ## FUNCTIONS
+// ## FUNCTIONS ##
 
 // to save log file with correct date and time on the system
 void dateTime(uint16_t* date, uint16_t* time) {
@@ -70,7 +71,13 @@ void dateTime(uint16_t* date, uint16_t* time) {
 
 void setup() {
 
-  // Begin serial communication at a baud rate of 9600
+  // set the pins modes
+  pinMode(greenLedPin, OUTPUT);
+  digitalWrite(greenLedPin, LOW);
+  pinMode(yellowLedPin, OUTPUT);
+  digitalWrite(yellowLedPin, LOW);
+
+  // begin serial communication at a baud rate of 9600
   Serial.begin(9600);
 
   // initialise the oled
@@ -82,7 +89,7 @@ void setup() {
 
   rtc.begin();
 
-//  rtc.adjust(DateTime(__DATE__, __TIME__));
+//  rtc.adjust(DateTime(__DATE__, __TIME__)); // uncomment this to adjust the date/time the first time or if something messes up
 
   /* IMPORTANT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   Flash the first time with only the rtc.adjust(...) line to set the current time.
@@ -90,6 +97,7 @@ void setup() {
   you will connect the device to something, it will try to set the date and time again,
   and usually, it will fail. */
 
+  // run this IF soon after you set the date/time to avoid messing up every time you connect the Arduino somewhere
   if (!rtc.isrunning()) {
     Serial.println("RTC is NOT running!");
     // following line sets the RTC to the date & time this sketch was compiled
@@ -191,12 +199,12 @@ void loop() {
     myFile.print(",");
     myFile.println(h);
 
-    // debug on serial
-    //    Serial.print(id);Serial.print(",");
-    //    Serial.print(current_date);Serial.print(",");
-    //    Serial.print(current_time);Serial.print(",");
-    //    Serial.print(t);Serial.print(",");
-    //    Serial.println(h);
+//    //debug on serial
+//    Serial.print(id);Serial.print(",");
+//    Serial.print(current_date);Serial.print(",");
+//    Serial.print(current_time);Serial.print(",");
+//    Serial.print(t);Serial.print(",");
+//    Serial.println(h);
 
     myFile.close(); // close the log file
 
@@ -229,4 +237,17 @@ void loop() {
   u8x8.print(current_time);
 
   delay(log_frequency); // log and display data every X second/s
+
+  // now set the controls for the LEDs
+  if(t>=20)
+  { 
+    digitalWrite(greenLedPin, HIGH); // turn on green LED
+    digitalWrite(yellowLedPin, LOW); // turn off yellow LED
+  }
+
+  if((t >19) && (t<20))
+  {
+    digitalWrite(yellowLedPin, HIGH); // turn on yellow LED
+    digitalWrite(greenLedPin, LOW); // turn off green LED
+  }
 }
