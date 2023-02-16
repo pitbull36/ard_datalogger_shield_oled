@@ -245,9 +245,15 @@ void loop() {
     digitalWrite(yellowLedPin, LOW); // turn off yellow LED
   }
 
-  if((t >19) && (t<20))
+  if((t >=19) && (t<20))
   {
     digitalWrite(yellowLedPin, HIGH); // turn on yellow LED
+    digitalWrite(greenLedPin, LOW); // turn off green LED
+  }
+
+  if(t <19)
+  {
+    digitalWrite(yellowLedPin, LOW); // turn off yellow LED
     digitalWrite(greenLedPin, LOW); // turn off green LED
   }
 }
